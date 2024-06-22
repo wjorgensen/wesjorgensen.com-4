@@ -1,91 +1,25 @@
-// components/Terminal.tsx
-import React, { useState } from 'react';
-import styled from 'styled-components';
-
-const TerminalWrapper = styled.div`
-  background: black;
-  color: green;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  font-family: 'Courier New', Courier, monospace;
-`;
-
-const TerminalInputWrapper = styled.div`
-  display: flex;
-`;
-
-const TerminalInput = styled.input`
-  background: black;
-  color: green;
-  border: none;
-  outline: none;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 16px;
-  flex-grow: 1;
-`;
-
-const TerminalOutput = styled.div`
-  margin-bottom: 10px;
-`;
-
-const Prompt = styled.span`
-  margin-right: 5px;
-`;
-
-const tabSpace = () => `\u00A0\u00A0`;
-
-
-interface FileSystem {
-  [key: string]: string | FileSystem;
-}
-
-const fileSystem: FileSystem = {
-  '~': {
-    'projects': {},
-    'writing': {},
-    'hello.txt': 'Hello, this is a test file.',
-    'about-me.txt': 'This is the about me file.',
-    'help.txt': 'Available commands: help, ls, cat {filename}, clear',
-    'sus.txt': '⣿⣿⣿⣿⣿⣿⣿⡿⠟⠋⠉⢁⣀⣀⣀⡈⠉⠛⢿⡿⠿⢿⣿⣿⣿<br />⣿⣿⣿⣿⣿⣿⠏⢀⣴⣾⣿⣿⣿⣿⣿⡟⠃⢀⣀⣤⣤⣄⠉⢿⣿<br />⣿⣿⣿⣿⣿⡏⠀⣾⣿⣿⣿⣿⣿⣿⠏⠀⣴⣿⣿⣿⣯⣻⣧⠀⢻<br />⣿⣿⣿⣿⣿⠁⢸⣿⣿⣿⣿⣿⣿⣿⠀⠸⣿⣿⣿⣿⣿⣿⣿⡇⠈<br />⣿⣿⣿⣿⡏⠀⣼⣿⣿⣿⣿⣿⣿⣿⣧⠀⠹⢿⣿⣿⣿⡿⠟⠀⣼<br />⣿⣿⣿⡿⠇⠀⠛⠿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣀⡈⠉⠀⠀⣴⣿⣿<br />⣿⡿⠁⣀⢠⢤⣤⠀⠀⠉⢀⠀⠀⠈⠉⠻⢿⣿⣿⣿⡇⠀⣿⣿⣿<br />⡟⠀⣴⣽⣷⣷⠆⠀⣴⣾⣿⣔⡳⢦⡄⣄⣠⣿⣿⣿⡇⠀⣿⣿⣿<br />⠀⢰⣿⣿⣿⠇⠀⣼⣿⣿⣿⣿⣿⣷⣶⣿⣿⣿⣿⣿⣿⠀⢻⣿⣿<br />⠀⠸⣾⣿⣿⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⢸⣿⣿<br />⣧⠀⠻⢿⣿⠀⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⢸⣿⣿<br />⣿⣷⣤⣀⣈⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⡏⠀⣼⣿⣿<br />⣿⣿⣿⣿⣿⡇⠀⣄⠀⠙⠛⠿⠿⠛⠁⢀⣼⣿⣿⣿⡇⠀⣿⣿⣿<br />⣿⣿⣿⣿⣿⣷⡀⠘⠿⠶⠀⢀⣤⣤⡀⠙⢿⣿⣿⡿⠁⢰⣿⣿⣿<br />⢻⣿⣿⣿⣿⣿⣿⣦⣤⣤⣴⣿⣿⣿⣷⣄⣀⠈⠁⣀⣠⣿⣿⣿⣿<br />⣹⣿⣿⣿⡿⢋⣩⣬⣩⣿⠃⣿⣿⣿⣿⢸⣿⡿⢋⣡⣬⣩⣿⣿⣿<br />⡗⣿⣿⣿⣧⣈⣛⠛⠻⣿⠀⣿⣿⣿⡿⢸⣿⣧⣈⣛⠛⠻⣿⣿⣿<br />⣿⣿⣿⣿⠹⣿⣿⡿⠂⣿⣇⠸⣿⣿⠃⣼⣿⠻⣿⣿⡿⠀⣿⣿⣿<br />⣿⣿⣿⣿⣶⣤⣤⣴⣾⣿⣿⣶⣤⣤⣾⣿⣿⣶⣤⣤⣴⣾⣿⣿⣿',
-  },
-};
+// Terminal.tsx
+import React, { useState, useEffect, useRef } from 'react';
+import { executeCommand } from './commands';
+import { SnakeGame } from './SnakeGame';
+import s from '@/styles/Terminal.module.scss';
 
 const Terminal: React.FC = () => {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState<string[]>([]);
   const [currentFolder, setCurrentFolder] = useState(['~']);
+  const [isPlayingSnake, setIsPlayingSnake] = useState(false);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
-  const getCurrentFolderContents = () => {
-    return currentFolder.reduce((acc, folder) => acc[folder], fileSystem);
-  };
-
-  const commands: { [key: string]: () => string } = {
-    ls: () => {
-      const contents = getCurrentFolderContents();
-      return Object.keys(contents).join(tabSpace());
-    },
-    help: () => 'Available commands: help, ls, cat {filename}, clear',
-    clear: () => {
-      setOutput([]);
-      return '';
-    },
-  };
-
-  const handleCommand = (command: string, args: string[]) => {
-    if (commands[command]) {
-      return commands[command]();
-    } else if (command === 'cat' && args.length > 0) {
-      const filename = args[0];
-      const contents = getCurrentFolderContents();
-      if (contents[filename]) {
-        return contents[filename];
+  const changeThemeColor = (theme: string) => {
+    if (terminalRef.current) {
+      if (theme === "light") {
+        terminalRef.current.style.setProperty('--background-color', "white");
+        terminalRef.current.style.setProperty('--text-color', "black");
       } else {
-        return `cat: ${filename}: No such file or directory`;
+        terminalRef.current.style.setProperty('--background-color', "black");
+        terminalRef.current.style.setProperty('--text-color', "green");
       }
-    } else {
-      return `Command not found: ${command}`;
     }
   };
 
@@ -98,29 +32,53 @@ const Terminal: React.FC = () => {
       const inputParts = input.split(' ');
       const command = inputParts[0];
       const args = inputParts.slice(1);
-      const commandOutput = handleCommand(command, args);
-      if (commandOutput !== '') {
-        setOutput([...output, `user@wesjorgensen.com ${currentFolder.join('/')} $ ${input}`, commandOutput]);
+      
+      if (command === 'snake') {
+        setIsPlayingSnake(true);
+        setOutput([]);
+      } else {
+        const commandOutput = executeCommand(command, args, currentFolder, setCurrentFolder, changeThemeColor);
+        
+        if (commandOutput === 'CLEAR_TERMINAL') {
+          setOutput([]);
+        } else if (commandOutput !== '') {
+          setOutput([...output, `user@wesjorgensen.com ${currentFolder[currentFolder.length - 1]} $ ${input}`, commandOutput]);
+        } else {
+          setOutput([...output, `user@wesjorgensen.com ${currentFolder[currentFolder.length - 1]} $ ${input}`]);
+        }
       }
       setInput('');
     }
   };
 
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [output]);
+
   return (
-    <TerminalWrapper>
-      {output.map((line, index) => (
-        <TerminalOutput key={index}dangerouslySetInnerHTML={{ __html: line }} />
-      ))}
-      <TerminalInputWrapper>
-        <Prompt>user@wesjorgensen.com {currentFolder.join('/')} $</Prompt>
-        <TerminalInput
-          value={input}
-          onChange={handleInputChange}
-          onKeyDown={handleInputSubmit}
-          autoFocus
-        />
-      </TerminalInputWrapper>
-    </TerminalWrapper>
+    <div className={s.terminalWrapper} ref={terminalRef}>
+      {isPlayingSnake ? (
+        <SnakeGame onExit={() => setIsPlayingSnake(false)} />
+      ) : (
+        <>
+          {output.map((line, index) => (
+            <div key={index} className={s.terminalOutput} dangerouslySetInnerHTML={{ __html: line }} />
+          ))}
+          <div className={s.terminalInputWrapper}>
+            <span className={s.prompt}>user@wesjorgensen.com {currentFolder[currentFolder.length - 1]} $</span>
+            <input
+              className={s.terminalInput}
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleInputSubmit}
+              autoFocus
+            />
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 
