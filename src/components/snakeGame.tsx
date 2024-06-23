@@ -116,8 +116,6 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onExit }) => {
       {gameOver && (
         <div>
           <h2>Game Over!</h2>
-          <p>Final Score: {score}</p>
-          <button onClick={onExit}>Exit</button>
         </div>
       )}
       <p>Use arrow keys to move. Press Ctrl+C to exit.</p>
