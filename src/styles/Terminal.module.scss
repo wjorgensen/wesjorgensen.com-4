@@ -1,8 +1,6 @@
-
-
 .terminalWrapper {
   --background-color: black;
-  --text-color: green;
+  --text-color: #008000;
   background: var(--background-color);
   color: var(--text-color);
   height: 100vh;
@@ -10,6 +8,7 @@
   flex-direction: column;
   padding: 10px;
   font-family: 'Courier New', Courier, monospace;
+  line-height: 1.35; // This increases line spacing by 15%
 }
 
 .terminalInputWrapper {
@@ -28,6 +27,12 @@
 
 .terminalOutput {
   margin-bottom: 0px;
+
+  // Add styles for links within terminal output
+  a {
+    color: white;
+    text-decoration: underline;
+  }
 }
 
 .prompt {
