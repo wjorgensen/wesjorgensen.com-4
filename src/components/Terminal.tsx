@@ -5,6 +5,7 @@ import s from '@/styles/Terminal.module.scss';
 import Fuse from 'fuse.js';
 import { CommandOutput } from './commands';
 import DOMPurify from 'dompurify';
+import Commodore64 from './Commodore64';
 
 // Dynamically import SnakeGame for better performance
 const SnakeGame = lazy(() => import('./snakeGame').then(module => ({ default: module.SnakeGame })));
@@ -97,6 +98,8 @@ const Terminal: React.FC = () => {
   const fuseRef = useRef<Fuse<string>>();
   const [isLoadingSnake, setIsLoadingSnake] = useState(false);
   const [loadingDots, setLoadingDots] = useState('');
+  const [showCommodore64, setShowCommodore64] = useState(true);
+  const [commodore64Fullscreen, setCommodore64Fullscreen] = useState(false);
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('commandHistory');
@@ -282,93 +285,138 @@ const Terminal: React.FC = () => {
   };
 
   return (
-    <div 
-      className={s.terminalWrapper} 
-      ref={terminalRef}
-      role="application"
-      aria-label="Interactive terminal emulator"
-      aria-live="polite"
-    >
-      {isPlayingSnake ? (
-        <Suspense fallback={<div>Loading Snake game...</div>}>
-          <SnakeGame onExit={() => setIsPlayingSnake(false)} />
-        </Suspense>
-      ) : isPlayingStarWars ? (
-        <StarWarsPlayer 
-          frames={starWarsFrames} 
-          onExit={() => setIsPlayingStarWars(false)} 
-        />
-      ) : (
-        <>
-          <div 
-            className={s.terminalOutput}
-            role="log"
-            aria-label="Terminal output"
-            aria-live="polite"
-          >
-            {output.map((line, index) => (
-              <div key={index} className={s.terminalOutput}>
-                {renderOutput(line)}
-                {index === output.length - 1 && isLoadingSnake && (
-                  <span className={s.loadingDots} aria-live="polite">
-                    {loadingDots}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-          {!isLoadingSnake && (
-            <div className={s.terminalInputWrapper}>
-              <label 
-                htmlFor="terminal-input"
-                className={s.prompt}
-                aria-label={`Terminal prompt, current directory: ${currentFolder.join('/')}`}
-              >
-                user@wesjorgensen.com {currentFolder[currentFolder.length - 1]} $
-              </label>
-              <input
-                id="terminal-input"
-                ref={inputRef}
-                className={s.terminalInput}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleInputKeyDown}
-                autoFocus
-                aria-label="Terminal command input"
-                aria-describedby="terminal-help"
-                autoComplete="off"
-                spellCheck="false"
-              />
-            </div>
-          )}
-          {autocompleteOptions.length > 0 && (
+    <>
+      {/* 3D Commodore 64 Model Background */}
+      {!isPlayingSnake && !isPlayingStarWars && showCommodore64 && (
+        <div className={s.commodore64Background}>
+          <Commodore64 
+            modelPath="/commodore_64.glb"
+            width="100%"
+            height="100%"
+          />
+        </div>
+      )}
+
+      {/* Terminal running "on" the Commodore 64 screen */}
+      <div 
+        className={`${s.terminalWrapper} ${showCommodore64 ? s.onCommodore64 : ''}`}
+        ref={terminalRef}
+        role="application"
+        aria-label="Interactive terminal emulator"
+        aria-live="polite"
+      >
+        {isPlayingSnake ? (
+          <Suspense fallback={<div>Loading Snake game...</div>}>
+            <SnakeGame onExit={() => setIsPlayingSnake(false)} />
+          </Suspense>
+        ) : isPlayingStarWars ? (
+          <StarWarsPlayer 
+            frames={starWarsFrames} 
+            onExit={() => setIsPlayingStarWars(false)} 
+          />
+        ) : (
+          <>
             <div 
-              className={s.autocompleteOptions}
-              role="listbox"
-              aria-label="Autocomplete suggestions"
+              className={s.terminalOutput}
+              role="log"
+              aria-label="Terminal output"
+              aria-live="polite"
             >
-              {autocompleteOptions.map((option, index) => (
-                <div 
-                  key={index} 
-                  className={s.autocompleteOption}
-                  role="option"
-                  aria-selected={false}
-                >
-                  {option}
+              {output.map((line, index) => (
+                <div key={index} className={s.terminalOutput}>
+                  {renderOutput(line)}
+                  {index === output.length - 1 && isLoadingSnake && (
+                    <span className={s.loadingDots} aria-live="polite">
+                      {loadingDots}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
-          )}
-          
-          {/* Hidden helper text for screen readers */}
-          <div id="terminal-help" className="sr-only">
-            This is a terminal emulator. Type commands and press Enter to execute. 
-            Use Tab for autocomplete, Arrow Up/Down for command history. 
-            Type 'help' to see available commands.
-          </div>
-        </>
+            {!isLoadingSnake && (
+              <div className={s.terminalInputWrapper}>
+                <label 
+                  htmlFor="terminal-input"
+                  className={s.prompt}
+                  aria-label={`Terminal prompt, current directory: ${currentFolder.join('/')}`}
+                >
+                  user@wesjorgensen.com {currentFolder[currentFolder.length - 1]} $
+                </label>
+                <input
+                  id="terminal-input"
+                  ref={inputRef}
+                  className={s.terminalInput}
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleInputKeyDown}
+                  autoFocus
+                  aria-label="Terminal command input"
+                  aria-describedby="terminal-help"
+                  autoComplete="off"
+                  spellCheck="false"
+                />
+              </div>
+            )}
+            {autocompleteOptions.length > 0 && (
+              <div 
+                className={s.autocompleteOptions}
+                role="listbox"
+                aria-label="Autocomplete suggestions"
+              >
+                {autocompleteOptions.map((option, index) => (
+                  <div 
+                    key={index} 
+                    className={s.autocompleteOption}
+                    role="option"
+                    aria-selected={false}
+                  >
+                    {option}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Hidden helper text for screen readers */}
+            <div id="terminal-help" className="sr-only">
+              This is a terminal emulator. Type commands and press Enter to execute. 
+              Use Tab for autocomplete, Arrow Up/Down for command history. 
+              Type 'help' to see available commands.
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Toggle button for 3D model */}
+      {!isPlayingSnake && !isPlayingStarWars && (
+        <button
+          className={s.commodore64Toggle}
+          onClick={() => setShowCommodore64(!showCommodore64)}
+          aria-label={showCommodore64 ? 'Switch to normal terminal' : 'Run terminal on Commodore 64'}
+        >
+          {showCommodore64 ? '💻 Normal Mode' : '🖥️ C64 Mode'}
+        </button>
       )}
-    </div>
+
+      {/* Fullscreen 3D model */}
+      {commodore64Fullscreen && (
+        <div className={s.commodore64Fullscreen}>
+          <div className={s.commodore64Content}>
+            <button
+              className={s.closeButton}
+              onClick={() => setCommodore64Fullscreen(false)}
+              aria-label="Close fullscreen view"
+            >
+              ✕ Close
+            </button>
+            <Commodore64 
+              modelPath="/commodore_64.glb"
+              width="100%"
+              height="100%"
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
