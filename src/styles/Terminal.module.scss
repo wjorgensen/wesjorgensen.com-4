@@ -8,11 +8,30 @@
   flex-direction: column;
   padding: 10px;
   font-family: 'Courier New', Courier, monospace;
-  line-height: 1.35; // This increases line spacing by 15%
+  line-height: 1.35;
+  overflow-y: auto;
+  overflow-x: auto;
+  
+  @media (max-width: 768px) {
+    padding: 8px;
+    font-size: 14px;
+    height: 100dvh; // Use dynamic viewport height on mobile
+  }
+  
+  @media (max-width: 480px) {
+    padding: 6px;
+    font-size: 12px;
+  }
 }
 
 .terminalInputWrapper {
   display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
 }
 
 .terminalInput {
@@ -23,19 +42,269 @@
   font-family: 'Courier New', Courier, monospace;
   font-size: 16px;
   flex-grow: 1;
+  min-width: 0; // Prevent overflow
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+    min-height: 44px; // Touch-friendly height
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+    width: 100%;
+    margin-top: 4px;
+  }
 }
 
 .terminalOutput {
   margin-bottom: 0px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  
+  // Typing animation for new output
+  &.typing {
+    animation: typeIn 0.5s ease-out;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
 
   // Add styles for links within terminal output
   a {
     color: white;
     text-decoration: underline;
+    word-break: break-all;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: #00ff00;
+      text-shadow: 0 0 5px #00ff00;
+    }
+    
+    @media (max-width: 768px) {
+      padding: 2px 0; // Slightly larger touch target
+    }
   }
 }
 
 .prompt {
   margin-right: 5px;
   margin-bottom: 0px;
+  flex-shrink: 0;
+  position: relative;
+  
+  @media (max-width: 480px) {
+    margin-right: 3px;
+    font-size: 12px;
+  }
+}
+
+.autocompleteOptions {
+  background: var(--background-color);
+  border: 1px solid var(--text-color);
+  border-radius: 4px;
+  padding: 4px;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  animation: slideIn 0.2s ease-out;
+  
+  @media (max-width: 768px) {
+    max-height: 150px;
+    font-size: 14px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 12px;
+    max-height: 120px;
+  }
+}
+
+.autocompleteOption {
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background: rgba(0, 128, 0, 0.2);
+    box-shadow: inset 0 0 5px rgba(0, 255, 0, 0.3);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 8px; // Larger touch target
+  }
+  
+  @media (max-width: 480px) {
+    padding: 6px;
+  }
+}
+
+.loadingDots {
+  animation: pulse 1.5s infinite;
+  color: #00ff00;
+  font-weight: bold;
+}
+
+// Enhanced loading spinner for snake game
+.snakeLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  
+  .spinner {
+    border: 2px solid rgba(0, 128, 0, 0.3);
+    border-top: 2px solid #00ff00;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+  }
+  
+  .loadingText {
+    color: #00ff00;
+    animation: pulse 2s infinite;
+  }
+}
+
+// Star Wars movie player styles
+.starwarsPlayer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Courier New', Courier, monospace;
+  
+  @media (max-width: 768px) {
+    height: 100dvh;
+  }
+}
+
+.movieControls {
+  padding: 10px;
+  border-bottom: 1px solid var(--text-color);
+  background: rgba(0, 128, 0, 0.1);
+  font-size: 14px;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 6px;
+    font-size: 10px;
+  }
+}
+
+.movieFrame {
+  flex-grow: 1;
+  padding: 10px;
+  margin: 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  line-height: 1.2;
+  white-space: pre;
+  overflow: hidden;
+  background: var(--background-color);
+  color: var(--text-color);
+  
+  // Center the content
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 10px;
+    padding: 6px;
+    line-height: 1.1;
+  }
+  
+  @media (max-width: 320px) {
+    font-size: 8px;
+    padding: 4px;
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes typeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Terminal glow effect
+.terminalWrapper {
+  box-shadow: 
+    inset 0 0 20px rgba(0, 128, 0, 0.1),
+    0 0 20px rgba(0, 128, 0, 0.05);
+}
+
+// Mobile-specific improvements
+@media (max-width: 768px) {
+  .terminalWrapper {
+    // Prevent zoom on input focus
+    input, textarea, select {
+      font-size: 16px;
+    }
+    
+    // Improve scrolling on mobile
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+// Reduce motion for accessibility
+@media (prefers-reduced-motion: reduce) {
+  .terminalOutput.typing,
+  .autocompleteOptions,
+  .loadingDots,
+  .snakeLoading .spinner,
+  .snakeLoading .loadingText,
+  .prompt::after,
+  .autocompleteOption {
+    animation: none !important;
+    transition: none !important;
+  }
 }
